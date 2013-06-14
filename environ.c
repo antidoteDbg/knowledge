@@ -16,3 +16,6 @@ int main(int argc, char *argv[])
 	getchar();
 	return 0;
 }
+
+// getenv() - Get the value of a particular environment var
+// setenv() - Set a new value to an environment var
