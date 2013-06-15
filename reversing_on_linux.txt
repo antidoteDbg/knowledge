@@ -1,0 +1,124 @@
+strings, nm, ltrace, strace, LD_PRELOAD
+
+
+# strings /usr/bin/who
+users=%lu
+EXIT
+COMMENT
+IDLE
+TIME
+LINE
+NAME
+/dev/
+/var/log/wtmp
+/var/run/utmp
+/usr/share/locale
+Michael Stone
+David MacKenzie
+Joseph Arceneaux
+
+
+# nm /usr/bin/who
+
+08049110 t print_line
+08049320 t time_string
+08049390 t print_user
+08049820 t make_id_equals_comment
+080498b0 t who
+0804a170 T usage
+0804a4e0 T main
+0804a900 T set_program_name
+08051ddc b need_runlevel
+08051ddd b need_users
+08051dde b my_line_only
+08051de0 b time_format
+08051de4 b time_format_width
+08051de8 B program_name
+08051d24 D Version
+08051d28 D exit_failure
+
+
+
+
+# ltrace /usr/bin/who
+
+utmpxname(0x8050c6c, 0xb77068f8, 0, 0xbfc5cdc0, 0xbfc5cd78)          = 0
+setutxent(0x8050c6c, 0xb77068f8, 0, 0xbfc5cdc0, 0xbfc5cd78)          = 1
+getutxent(0x8050c6c, 0xb77068f8, 0, 0xbfc5cdc0, 0xbfc5cd78)          = 0x9ed5860
+realloc(NULL, 384)                                                   = 0x09ed59e8
+getutxent(0, 384, 0, 0xbfc5cdc0, 0xbfc5cd78)                         = 0x9ed5860
+realloc(0x09ed59e8, 768)                                             = 0x09ed59e8
+getutxent(0x9ed59e8, 768, 0, 0xbfc5cdc0, 0xbfc5cd78)                 = 0x9ed5860
+realloc(0x09ed59e8, 1152)                                            = 0x09ed59e8
+getutxent(0x9ed59e8, 1152, 0, 0xbfc5cdc0, 0xbfc5cd78)                = 0x9ed5860
+realloc(0x09ed59e8, 1920)                                            = 0x09ed59e8
+getutxent(0x9ed59e8, 1920, 0, 0xbfc5cdc0, 0xbfc5cd78)                = 0x9ed5860
+getutxent(0x9ed59e8, 1920, 0, 0xbfc5cdc0, 0xbfc5cd78)                = 0x9ed5860
+realloc(0x09ed59e8, 3072)                                            = 0x09ed59e8
+getutxent(0x9ed59e8, 3072, 0, 0xbfc5cdc0, 0xbfc5cd78)                = 0x9ed5860
+getutxent(0x9ed59e8, 3072, 0, 0xbfc5cdc0, 0xbfc5cd78)                = 0x9ed5860
+getutxent(0x9ed59e8, 3072, 0, 0xbfc5cdc0, 0xbfc5cd78)
+
+
+# strace /usr/bin/who
+
+[b76e7424] brk(0x887d000)               = 0x887d000
+[b76e7424] access("/var/run/utmpx", F_OK) = -1 ENOENT (No such file or directory)
+[b76e7424] open("/var/run/utmp", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 3
+.
+.
+.
+[b76e7424] fcntl64(3, F_SETLKW, {type=F_RDLCK, whence=SEEK_SET, start=0, len=0}) = 0
+[b76e7424] read(3, "\10\325"..., 384) = 384
+[b76e7424] fcntl64(3, F_SETLKW, {type=F_UNLCK, whence=SEEK_SET, start=0, len=0}) = 0
+
+
+
+
+
+
+
+LD_PRELOAD allows us to add a library to a particular execution of the program. The function in this library will overwrite the actual library function.
+
+Note: We can’t use this with programs set with ‘suid’ bit.
+
+Let’s take the following program.
+
+#include <stdio.h>
+int main() {
+  char str1[]="TGS";
+  char str2[]="tgs";
+  if(strcmp(str1,str2)) {
+    printf("String are not matched\n");
+  }
+  else {
+    printf("Strings are matched\n");
+  }
+}
+
+Compile and execute the program.
+
+# cc -o my_prg my_prg.c
+# ./my_prg
+
+It will print “Strings are not matched”.
+
+Now we will write our own library and we will see how we can intercept the library function.
+
+#include <stdio.h>
+int strcmp(const char *s1, const char *s2) {
+  // Always return 0.
+  return 0;
+}
+
+Compile and set the LD_LIBRARY_PATH variable to current directory.
+
+# cc -o mylibrary.so -shared library.c -ldl
+# LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH
+
+Now a file named ‘library.so’ will be created.
+Set the LD_PRELOAD variable to this file and execute the string comparison program.
+
+# LD_PRELOAD=mylibrary.so ./my_prg
+
+Now it will print ‘Strings are matched’ because it uses our version of strcmp function.
