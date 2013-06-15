@@ -1,0 +1,31 @@
+exit(status) - supports clean up
+_exit(status) - doesnt clean up
+atexit(void (*function)(void)) - sets function() to be the cleanup function
+
+
+
+
+pid_t fork(void); - creates two identical processes, returns in both of them.
+
+exec family:
+replace the current process image with a specified new one. ( so use after fork() )
+int execv(const char *path, char *const argv[]);
+
+
+
+pid_t wait(int *status); - used by the parent process to find out about state changes of the child
+pid_t waitpid(pid_t pid, int *status, int options); - used when there are more >1 child processes
+
+
+pid_t pid parameter:
+    < -1 : Wait for any child process whose process group ID is equal to the absolute value of pid.
+    -1 : Wait for any child process.
+    0 : Wait for any child process whose process group ID is equal to that of the calling process.
+    > 0 : Wait for the child whose process ID is equal to the value of pid.
+
+int options parameter:
+    WNOHANG : Return immediately if no child has exited.
+    WUNTRACED : Also  return if a child has stopped. Status for traced children which have stopped is provided even if this option is not specified.
+    WCONTINUED : Also return if a stopped child has been resumed by delivery of SIGCONT.
+
+
