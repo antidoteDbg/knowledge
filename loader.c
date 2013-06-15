@@ -14,12 +14,13 @@ int main(int argc, char* argv[])
 	if(child >= 0)
 	{
 		if(child == 0)
-		{
+		{	// this is the child process
 			ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 			execl(argv[1], NULL, NULL);
 		}
 		else
 		{
+			// this is the parent process
 			ptrace(PTRACE_SETOPTIONS, pid, PTRACE_0_TRACEEXEC, NULL);
 			waitpid(pid, &status, 0);
 		}
