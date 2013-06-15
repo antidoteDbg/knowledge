@@ -8,6 +8,7 @@
 int main(int argc, char* argv[])
 {
 	pid_t child;
+	int status;
 
 	child = fork();
 
