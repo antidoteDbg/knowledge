@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/user.h>
+#include <sys/reg.h>
+#include <sys/ptrace.h>
+#include <sys/types.h>
 
 int main(int argc, char* argv[])
 {
@@ -22,8 +24,8 @@ int main(int argc, char* argv[])
 		else
 		{
 			// this is the parent process
-			ptrace(PTRACE_SETOPTIONS, pid, PTRACE_0_TRACEEXEC, NULL);
-			waitpid(pid, &status, 0);
+			ptrace(PTRACE_SETOPTIONS, child, PTRACE_0_TRACEEXEC, NULL);
+			waitpid(child, &status, 0);
 		}
 	}
 	else
