@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			// this is the parent process
-			ptrace(PTRACE_SETOPTIONS, child, PTRACE_0_TRACEEXEC, NULL);
+			ptrace(PTRACE_SETOPTIONS, child, PTRACE_O_TRACEEXEC, NULL);
 			waitpid(child, &status, 0);
 		}
 	}
