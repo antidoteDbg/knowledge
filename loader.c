@@ -20,12 +20,14 @@ int main(int argc, char* argv[])
 		{	// this is the child process
 			ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 			execl(argv[1], NULL, NULL);
+			printf("Loading process image failed."); // execution should not cometo this point
 		}
 		else
 		{
 			// this is the parent process
 			ptrace(PTRACE_SETOPTIONS, child, PTRACE_O_TRACEEXEC, NULL);
 			waitpid(child, &status, 0);
+			printf("status:%i\n", status);
 		}
 	}
 	else
