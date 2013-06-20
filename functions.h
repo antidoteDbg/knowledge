@@ -9,9 +9,7 @@ typedef struct user_regs_struct user_regs;
 
 pid_t loadProcess(char* path)
 {
-	pid_t child;
-
-	child = fork();
+	pid_t child = fork();
 
 	if(child >= 0)
 	{
@@ -22,15 +20,11 @@ pid_t loadProcess(char* path)
 			printf("PTRACE_TRACEME failed.");
 		}
 		else
-		{
 			return child;
-		}
 
 	}
 	else
-	{
 		printf("fork() failed.");
-	}
 
 	return NULL;
 }
