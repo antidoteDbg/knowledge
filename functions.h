@@ -51,7 +51,7 @@ struct breakpoint
 	char* comment;
 };
 
-void setBreakpoint(pid_t child, int address, char* comment)
+void setBreakpoint(pid_t child, unsigned address, char* comment)
 {
 	struct breakpoint* bpoint;
 	unsigned trap;
