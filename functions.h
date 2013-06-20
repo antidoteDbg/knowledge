@@ -1,9 +1,15 @@
+//[Nickie] - Fixed syntax errors so this can compile
+#ifndef __ANTIDOTE_MAIN_H_INCLUDED__
+#define __ANTIDOTE_MAIN_H_INCLUDED__
+
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/user.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct user_regs_struct user_regs;
 
@@ -26,7 +32,7 @@ pid_t loadProcess(char* path)
 	else
 		printf("fork() failed.");
 
-	return NULL;
+	return 0;
 }
 
 user_regs getRegisters(pid_t child)
@@ -38,12 +44,12 @@ user_regs getRegisters(pid_t child)
 	return registers;
 }
 
-struct
+struct breakpoint
 {
 	unsigned address;
 	unsigned original_data;
 	char* comment;
-} breakpoint;
+};
 
 void setBreakpoint(pid_t child, int address, char* comment)
 {
@@ -51,12 +57,13 @@ void setBreakpoint(pid_t child, int address, char* comment)
 	unsigned trap;
 
 	bpoint = (struct breakpoint*)malloc(sizeof(struct breakpoint));
-	bpoint.address = address;
-	bpoint.comment = comment;
-	bpoint.original_data = ptrace(PTRACE_PEEKTEXT, child, (void*)address, 0);
-	breakpoints[++breakpoint_index] = bpoint; // need a global array
+	bpoint->address = address;
+	bpoint->comment = comment;
+	bpoint->original_data = ptrace(PTRACE_PEEKTEXT, child, (void*)address, 0);
+	//[Nickie] commenting the line below so it can compile
+	//breakpoints[++breakpoint_index] = bpoint; // need a global array
 
-	trap = (bpoint.original_data & 0xFFFFFF00) | 0xCC;
+	trap = (bpoint->original_data & 0xFFFFFF00) | 0xCC;
 	ptrace(PTRACE_POKETEXT, child, (void*)address, (void*)trap);
 }
 
@@ -82,11 +89,14 @@ procmsg("Child stopped at EIP = 0x%08x\n", regs.eip);
 
 void continueBreakpoint(pid_t child, struct breakpoint* bpoint, user_regs* registers)
 {
-	ptrace(PTRACE_POKETEXT, child, (void*)bpoint.address, (void*)bpoint.original_data);
-	registers.eip -= 1;
+	ptrace(PTRACE_POKETEXT, child, (void*)( bpoint->address ), (void*)( bpoint->original_data ));
+	
+	registers->eip -= 1;
 	ptrace(PTRACE_SETREGS, child, 0, &registers);
 
 	// one step
 	// setBreakpoint(child, bpoint.address, bpoint.comment);
 	ptrace(PTRACE_CONT, child, 0, 0);
 }
+
+#endif
