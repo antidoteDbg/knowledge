@@ -51,7 +51,7 @@ struct
 	char* comment;
 } breakpoint;
 
-void putBreakpoint(pid_t child, int address, char* comment)
+void setBreakpoint(pid_t child, int address, char* comment)
 {
 	struct breakpoint* bpoint;
 	unsigned trap;
@@ -91,5 +91,8 @@ void continueBreakpoint(pid_t child, struct breakpoint* bpoint, user_regs* regis
 	ptrace(PTRACE_POKETEXT, child, (void*)bpoint.address, (void*)bpoint.original_data);
 	registers.eip -= 1;
 	ptrace(PTRACE_SETREGS, child, 0, &registers);
+
+	// one step
+	// setBreakpoint(child, bpoint.address, bpoint.comment);
 	ptrace(PTRACE_CONT, child, 0, 0);
 }
