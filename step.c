@@ -63,9 +63,10 @@ void stepDebug(pid_t child)
 
 int main(int argc, char* argv[])
 {
+	pid_t child;
 	if(argc == 2)
 	{
-		pid_t child = loadProcess(argv[1]);
+		child = loadProcess(argv[1]);
 		stepDebug(child);
 	}
 
