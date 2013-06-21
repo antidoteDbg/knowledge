@@ -11,7 +11,7 @@ typedef struct user_regs_struct user_regs;
 
 pid_t loadProcess(char* path)
 {
-  pid_t child = fork();
+	pid_t child = fork();
 
 	if(child >= 0)
 	{
